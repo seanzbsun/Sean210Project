@@ -11,7 +11,7 @@ use ndarray::Array2; // for manipulating feature matrices
 
 fn main() {
     // file path var
-    let file_path = "/Users/seansun/Documents/ds210/project/Sean210Project/body/src/CoC.csv";
+    let file_path = "/Users/seansun/Documents/ds210/project/Sean210Project/body/src/CoC_test.csv";
 
     // read data from CSV using data_reader module
     match data_reader::read_file(file_path) {
@@ -75,8 +75,26 @@ fn main() {
     }
 }
 
-// #[cfg(test)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ndarray::array;
 
-//     #[derive(Debug, PartialEq, Eq)]
+    #[test]
+    fn test_metrics_calculations() {
+        // create a sample dataset
+        let features = array![[5.0, 3.0, 10.0, 2.0], [8.0, 6.0, 15.0, 3.0]];
+        let trophies = array![500.0, 700.0];
 
-//     #[test]
+        // test correlation calculation
+        let correlations = metrics::calculate_correlations(&features, &trophies);
+        assert_eq!(correlations.len(), 4);
+
+        let predictions = array![500.0, 700.0];
+        let mae = metrics::calculate_mae(&trophies, &predictions);
+        let mse = metrics::calculate_mse(&trophies, &predictions);
+
+        assert!((mae - 0.0).abs() < 1e-6, "MAE should be near 0.0");
+        assert!((mse - 0.0).abs() < 1e-6, "SAE should be near 0.0");
+    }
+}
