@@ -11,7 +11,7 @@ use ndarray::Array2; // for manipulating feature matrices
 
 fn main() {
     // file path var
-    let file_path = "/Users/seansun/Documents/ds210/project/Sean210Project/body/src/CoC_test.csv";
+    let file_path = "/Users/seansun/Documents/ds210/project/Sean210Project/body/src/CoC.csv";
 
     // read data from CSV using data_reader module
     match data_reader::read_file(file_path) {
@@ -79,22 +79,59 @@ fn main() {
 mod tests {
     use super::*;
     use ndarray::array;
+    use tempfile::NamedTempFile;
+    use std::io::Write;
 
     #[test]
     fn test_metrics_calculations() {
-        // create a sample dataset
+        // created a sample dataset
         let features = array![[5.0, 3.0, 10.0, 2.0], [8.0, 6.0, 15.0, 3.0]];
-        let trophies = array![500.0, 700.0];
+        let trophies = array![200.0, 450.0];
 
         // test correlation calculation
         let correlations = metrics::calculate_correlations(&features, &trophies);
         assert_eq!(correlations.len(), 4);
 
-        let predictions = array![500.0, 700.0];
+        // test MAE calculation
+        let predictions = array![200.0, 450.0];
         let mae = metrics::calculate_mae(&trophies, &predictions);
         let mse = metrics::calculate_mse(&trophies, &predictions);
 
-        assert!((mae - 0.0).abs() < 1e-6, "MAE should be near 0.0");
-        assert!((mse - 0.0).abs() < 1e-6, "SAE should be near 0.0");
+        // assertions checking if the calculated metrics are near zero
+        assert!((mae - 0.0).abs() < 1e-6); // both should be near zero
+        assert!((mse - 0.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_read_file_success() {
+        // create temporary file that mimics file and stores given 3 lines of data
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(temp_file, "header1,header2,header3,header4,header5,attack_wins,defense_wins,dummy1,dummy2,dummy3,trophies,dummy4,donations,dummy5,dummy6,builder_tropies")
+            .unwrap();
+        writeln!(temp_file, "0,0,0,0,0,5,3,0,0,0,1000,0,50,0,0,10").unwrap();
+        writeln!(temp_file, "0,0,0,0,0,8,6,0,0,0,1200,0,60,0,0,15").unwrap();
+
+        let result = data_reader::read_file(temp_file.path().to_str().unwrap());
+        assert!(result.is_ok()); // check if the file reading is successful, should succeed
+        let records = result.unwrap();
+        assert_eq!(records.len(), 2); // check if the correct number of records is read
+        assert_eq!(records[0].trophies, 1000); // check if the first record's trophies match
+    }
+
+    #[test]
+    // test file reading failure
+    #[should_panic] // test panic during file reading, aside from invalid path
+    fn test_read_file_invalid_format() {
+        // temporary file
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(temp_file, "header1,header2,header3,header4,header5,attack_wins,defense_wins,dummy1,dummy2,dummy3,trophies,dummy4,donations,dummy5,dummy6,builder_tropies")
+            .unwrap();
+        writeln!(temp_file, "invalid,data").unwrap();
+
+        // attempt to read the file
+        let result = data_reader::read_file(temp_file.path().to_str().unwrap());
+        println!("{:?}",result);
+        // check if file reading errors
+        assert!(result.is_err());
     }
 }

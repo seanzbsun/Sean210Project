@@ -16,7 +16,7 @@ pub struct PlayerRecord {
 pub fn read_file(path: &str) -> Result<Vec<PlayerRecord>, io::Error> {
     let mut records = Vec::new(); // store parsed player records in a vector
 
-    let file = File::open(path)?; // open the file
+    let file = File::open(path).expect("Could not open file"); // open the file
     let reader = io::BufReader::new(file); // wrap file in buffered reader to read lines efficiently
 
     for line in reader.lines().skip(1) { // skip the header row
@@ -25,11 +25,11 @@ pub fn read_file(path: &str) -> Result<Vec<PlayerRecord>, io::Error> {
 
         // parse fields from CSV lineinto PlayerRecord
         let record = PlayerRecord { 
-            attack_wins: fields[0].parse().unwrap_or(0), //5
-            defense_wins: fields[1].parse().unwrap_or(0), //6
-            donations: fields[2].parse().unwrap_or(0), //12
-            builder_tropies: fields[3].parse().unwrap_or(0), //15
-            trophies: fields[4].parse().unwrap_or(0), //10
+            attack_wins: fields[5].parse().unwrap_or(0), //5
+            defense_wins: fields[6].parse().unwrap_or(0), //6
+            donations: fields[12].parse().unwrap_or(0), //12
+            builder_tropies: fields[15].parse().unwrap_or(0), //15
+            trophies: fields[10].parse().unwrap_or(0), //10
         };
 
         records.push(record); // add parsed record to vector

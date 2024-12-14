@@ -9,3 +9,4 @@ plotters = "0.3"
 linfa = { git = "https://github.com/rust-ml/linfa" }
 linfa-linear = { git = "https://github.com/rust-ml/linfa" }
 ndarray = { version = "^0.15.6" }
+tempfile = "3.8"
