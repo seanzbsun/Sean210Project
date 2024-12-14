@@ -1,4 +1,4 @@
-// using my two other modules for reading in the csv and computing MSE and MAE
+// using my two other modules for reading in the csv and computation
 mod data_reader;
 mod metrics;
 
@@ -37,11 +37,6 @@ fn main() {
             let x = Array2::from_shape_vec((x_data.len(), x_data[0].len()), x_data.concat()).unwrap();
             let y = ndarray::Array1::from_vec(y_data);
 
-            let correlations = metrics::calculate_correlations(&x, &y);
-            for (i, correlation) in correlations.iter().enumerate() {
-                println!("Correlation between feature {} and trophies: {:.3}", i + 1, correlation);
-            }
-
             // create a dataset that's cloned off of the original data
             let dataset = Dataset::new(x.clone(), y.clone());
 
@@ -62,12 +57,18 @@ fn main() {
                     // calculate MAE and MSE
                     let mae = metrics::calculate_mae(&y, &predictions);
                     let mse = metrics::calculate_mse(&y, &predictions);
+                    
+                    // calculate correlation
+                    let correlations = metrics::calculate_correlations(&x, &y);
+                    for (i, correlation) in correlations.iter().enumerate() {
+                        println!("Correlation between feature {} and trophies: {:.3}", i + 1, correlation);
+                    }
             
             // print metrics
             println!("Mean Absolute Error (MAE): {:.2}", mae);
             println!("Mean Squared Error (MSE): {:.2}", mse);
                 }
-                Err(e) => eprintln!("Failed to train the model: {}", e),
+                Err(e) => eprintln!("Failed to train the model: {}", e)
             }
         }
         // if file reading fails, print an error message
